@@ -11,14 +11,21 @@ pipeline {
                 }
             }
         }
-        stage ('Test') {
+        stage ('Setup Workspace') {
             steps {
                 withGradle {
-                    sh './gradlew test'
+                    sh './gradlew setupDecompWorkspace'
                 }
             }
         }
-        stage ('Deploy') {
+        stage ('Test') {
+            steps {
+                withGradle {
+                    sh './gradlew test -i'
+                }
+            }
+        }
+        stage ('Build Mod') {
             steps {
                 withGradle {
                     sh './gradlew reobfShadowJar'
@@ -34,7 +41,7 @@ pipeline {
                 execPattern: 'build/jacoco/*.exec',
                 classPattern: 'build/classes',
                 sourcePattern: 'src/main/java',
-                exclusionPattern: 'src/test*'
+                exclusionPattern: 'src/test*,**/models/messages/**'
             )
         }
     }
